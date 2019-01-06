@@ -11,4 +11,4 @@ $timeout = New-PSSessionOption -OperationTimeout 3600
 $session_many = new-pssession -computername 192.168.255.135 -Credential $Cred -SessionOption $timeout
 #-ScriptBlock {}是执行一段命令，-Filepath是指定脚本
 #Invoke-Command -ComputerName 192.168.255.135 -Credential $Cred  -FilePath .\无标题4.ps1 -SessionOption 
-Invoke-Command -Session $session_many  -FilePath .\无标题4.ps1
+$null = Invoke-Command -Session $session_many  -FilePath .\无标题4.ps1
