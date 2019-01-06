@@ -1,4 +1,4 @@
-﻿#作用：powershell非交互式远程执行脚本，目标机器herrywen,herrywen，远程ip：192.168.255.135
+﻿#作用：powershell非交互式远程执行脚本，目标机器herrywen,herrywen，远程ip：192.168.255.135，远程执行脚本
 #远程机器开启Enable-PSRemoting –Force
 #远程机器设置访问列表Set-Item wsman:\localhost\client\trustedhosts *
 #                    Restart-Service WinRM
