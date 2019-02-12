@@ -1,10 +1,10 @@
-$taskname = "每天0点清除日志"
+$taskname = "delete_log"
 $computername = "$env:COMPUTERNAME"
 $username = "$env:username"
 $user = "$computername\$username"
 $password = "Aecg1qaz@wsx"
-#需要执行的脚本路径
+$powershell_path = "$PSHOME"
 $scriptpath = "d:\remote_log.ps1"
 $trigger = New-ScheduledTaskTrigger -At 0:00am -Daily
-$Action= New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"  -Argument $scriptpath
+$Action= New-ScheduledTaskAction -Execute "$powershell_path\powershell.exe"  -Argument $scriptpath
 Register-ScheduledTask -TaskName $TaskName -Trigger $Trigger -User $User -Action $Action -Password $password -RunLevel Highest -Force
