@@ -1,0 +1,10 @@
+$taskname = "每天0点清除日志"
+$computername = "$env:COMPUTERNAME"
+$username = "$env:username"
+$user = "$computername\$username"
+$password = "aqz987456"
+#需要执行的脚本路径
+$scriptpath = "d:\cisco\tets.ps1"
+$trigger = New-ScheduledTaskTrigger -At 0:00am -Daily
+$Action= New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"  -Argument $scriptpath
+Register-ScheduledTask -TaskName $TaskName -Trigger $Trigger -User $User -Action $Action -Password $password -RunLevel Highest -Force
