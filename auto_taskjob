@@ -2,7 +2,7 @@ $taskname = "每天0点清除日志"
 $computername = "$env:COMPUTERNAME"
 $username = "$env:username"
 $user = "$computername\$username"
-$password = "aqz987456"
+$password = "Aecg1qaz@wsx"
 #需要执行的脚本路径
 $scriptpath = "d:\remote_log.ps1"
 $trigger = New-ScheduledTaskTrigger -At 0:00am -Daily
