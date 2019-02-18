@@ -2,3 +2,10 @@ https://blog.csdn.net/qwlovedzm/article/details/79576112
 cd /opt/gitlab/embedded/service/gitlab-rails/config  
 vim gitlab.yml 
 gitlab-ctl restart    
+
+
+
+修改域名：
+vim /etc/gitlab/gitlab.rb
+external_url 'http://192.168.1.100'
+sudo gitlab-ctl reconfigure
