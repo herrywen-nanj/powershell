@@ -1,0 +1,4 @@
+https://blog.csdn.net/qwlovedzm/article/details/79576112
+cd /opt/gitlab/embedded/service/gitlab-rails/config  
+vim gitlab.yml 
+gitlab-ctl restart    
