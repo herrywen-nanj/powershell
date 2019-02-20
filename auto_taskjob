@@ -1,3 +1,4 @@
+#任务计划
 $taskname = "delete_log"
 $computername = "$env:COMPUTERNAME"
 $username = "$env:username"
