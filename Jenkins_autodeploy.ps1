@@ -6,7 +6,7 @@ $website_ip = $env:machine
 $work_dir = $ENV:WORKSPACE
 $script:build_dir = Get-ChildItem -Path $work_dir -Recurse -ErrorAction SilentlyContinue -Filter *.Http | Where-Object { $_.Extension -eq '.Http' }
 $publish_dir = "$work_dir\$script:build_dir\bin\Release\netcoreapp2.1\win7-x64\publish"
-
+echo "push_dir是$publish_dir"
 #获取发布uri，并自动获取ip和端口
 $parttern = "\b\d{1,5}"
 $JOB_NAME -match $parttern
@@ -51,13 +51,12 @@ function ExecCmd($cmd){
 
 #发布到Website
 function PublishWebsite($websites){
-        echo "build_dir是$build_dir"
         echo "开始clean $website_name ………………………"
-        dotnet clean $build_dir\$build_dir.csproj --configuration Release
+        dotnet clean --configuration Release
         echo "开始build $website_name ………………………"
-        dotnet build $build_dir\$build_dir.csproj --configuration Release /property:"Version=$version"
+        dotnet build --configuration Release -p:Version=$version
         echo "开始生成$website_name 的web文件……………………"
-        dotnet publish $build_dir\$build_dir.csproj -r win7-x64 -c Release
+        dotnet publish .\$build_dir\$build_dir.csproj -r win7-x64 -c Release
 }  
 
 #发送钉钉消息
@@ -102,7 +101,7 @@ function remote_copy_and_restart_website() {
         echo "删除$website_ip 的上次备份，并远程备份原代码到$website_ip $website_dir$website_name-bak……………………"
         $hasBak = ExecCmd "Test-Path $website_dir$website_name-bak"
         if($hasBak -eq 1){
-            ExecCmd "rm $website_dir$website_name-bak -Recurse"
+            ExecCmd "Remove-Item $website_dir$website_name-bak -Recurse -Force"
         }
         $hasDir = ExecCmd "Test-Path $website_dir$website_name"
         if($hasDir -eq 1){
@@ -135,7 +134,7 @@ function checkout_website() {
 else {
     echo "开始编译................"
     PublishWebsite  $websites
-    if ($? -ne 1){
+    if($? -ne 1){
         delivery $build_failure
         exit 1
     }
@@ -150,7 +149,7 @@ else {
         echo "恢复bak文件到原有文件夹"
         ExecCmd "Copy-Item -Path $website_dir$website_name-bak\* -Destination $website_dir$website_name"
         echo "正在删除错误的tag版本"
-        ExecCmd "rm $website_tag_dir$website_name-$version -Recurse"
+        ExecCmd "Remove-Item $website_tag_dir$website_name-$version -Recurse -Force"
         echo "远程重启并恢复$website_ip 站点$website_name……………………"
         ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop site $website_name"
         ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start site $website_name"
@@ -164,5 +163,8 @@ else {
    }
 }
 checkout_website
+
+
+   
 
 
