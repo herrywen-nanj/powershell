@@ -81,7 +81,7 @@ function remote_copy_and_restart_website() {
         echo "拷贝发布代码到$website_ip $website_dir$website_name-new……………………"
         $hasBak = ExecCmd "Test-Path $website_dir$website_name-new"
         if($hasBak -eq 1){
-            ExecCmd "rm $website_dir$website_name-new -Recurse"
+            ExecCmd "Remove-Item $website_dir$website_name-new -Recurse -Force"
         }
         $password = ConvertTo-SecureString -AsPlainText $website_password -Force
         $autocopy_cred = New-Object System.Management.Automation.PSCredential -ArgumentList $website_username,$password
@@ -90,7 +90,7 @@ function remote_copy_and_restart_website() {
         echo "----------------------------发布目录拷贝到$website_name-new全部完成-------------------------------------------------"
         $hasBak_tag = ExecCmd "Test-Path $website_tag_dir$website_name-$version"
         if($hasBak_tag -eq 1){
-            ExecCmd "rm $website_tag_dir$website_name-$version -Recurse"
+            ExecCmd "Remove-Item $website_tag_dir$website_name-$version -Recurse -Force"
         }
         echo "拷贝最新发布目录到tag目录下"
         ExecCmd "Copy-Item -Path  $website_dir$website_name-new -Destination $website_tag_dir$website_name-$version -Recurse -Force"
