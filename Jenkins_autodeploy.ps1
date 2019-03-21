@@ -15,13 +15,13 @@ $script:uri = "http://$website_ip`:" + "$script:port"
 #获取编译时间
 $script:date = (Get-Date).ToString("yyyyMMddHHmmss")
 #定义编译失败内容
-$build_failure = "$JOB_NAME" + "项目编译出现问题，请检查环境配置!" + ",发布在服务器" + "$website_ip"
+$build_failure = "$JOB_NAME" + "项目编译出现问题，请检查环境配置!" + "目标机器" + "$website_ip" + "未执行后续操作"
 #定义成功消息内容
 $content = "$JOB_NAME" + "项目发布成功" + ",发布在服务器" + "$website_ip" + ",发布在服务器" + "$website_ip"
 #定义失败消息内容
 $content_failure = "$JOB_NAME" + "发布失败，post版本号或者填写的目标ip不能为空!" + ",发布在服务器" + "$website_ip"
 #定义拷贝失败消息
-$copy_failure = "$JOB_NAME" + "拷贝文件出现问题，请检查目标服务器winrm连接!" + ",发布在服务器" + "$website_ip"
+$copy_failure = "$JOB_NAME" + "拷贝文件出现问题，请检查目标服务器winrm连接!" + ",目标机器为" + "$website_ip"
 #定义恢复通知
 $content_recovery = "$JOB_NAME" + "发布失败，你上传的代码可能有问题，已经恢复到上个稳定版本" + ",发布在服务器" + "$website_ip"
 
