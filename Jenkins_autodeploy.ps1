@@ -54,9 +54,16 @@ function PublishWebsite($websites){
         echo "开始clean $website_name ………………………"
         dotnet clean --configuration Release
         echo "开始build $website_name ………………………"
-        dotnet build --configuration Release -p:Version=$version
-        echo "开始生成$website_name 的web文件……………………"
-        dotnet publish .\$build_dir\$build_dir.csproj -r win7-x64 -c Release
+        dotnet build --configuration Release
+        if($? -ne 1) {
+            exit 1
+            echo "编译失败"
+     
+        }
+        else {
+               echo "开始生成$website_name 的web文件……………………"
+               dotnet publish .\$build_dir\$build_dir.csproj -r win7-x64 -c Release
+        }
 }  
 
 #发送钉钉消息
@@ -87,84 +94,92 @@ function remote_copy_and_restart_website() {
         $autocopy_cred = New-Object System.Management.Automation.PSCredential -ArgumentList $website_username,$password
         $copy_session = New-PSSession -ComputerName $website_ip -Credential $autocopy_cred
         Copy-Item -Path $publish_dir -Destination $website_dir$website_name-new -ToSession $copy_session -Recurse
-        echo "----------------------------发布目录拷贝到$website_name-new全部完成-------------------------------------------------"
-        $hasBak_tag = ExecCmd "Test-Path $website_tag_dir$website_name-$version"
-        if($hasBak_tag -eq 1){
-            ExecCmd "Remove-Item $website_tag_dir$website_name-$version -Recurse -Force"
+        if($? -ne 1) {
+            exit 1
         }
-        echo "拷贝最新发布目录到tag目录下"
-        ExecCmd "Copy-Item -Path  $website_dir$website_name-new -Destination $website_tag_dir$website_name-$version -Recurse -Force"
-        echo "---------------------------发布目录拷贝到$website_tag_dir目录下全部完成---------------------------------------------"
-        echo "远程停止$website_ip 站点$website_name……………………"
-        ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop site $website_name"
-        ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop apppool $website_name"
-        echo "删除$website_ip 的上次备份，并远程备份原代码到$website_ip $website_dir$website_name-bak……………………"
-        $hasBak = ExecCmd "Test-Path $website_dir$website_name-bak"
-        if($hasBak -eq 1){
-            ExecCmd "Remove-Item $website_dir$website_name-bak -Recurse -Force"
-        }
-        $hasDir = ExecCmd "Test-Path $website_dir$website_name"
-        if($hasDir -eq 1){
-            ExecCmd "mv $website_dir$website_name $website_dir$website_name-bak"
-        }
-        echo "检测$website_ip 是否存在站点$website_name……………………"
-        $hasSite = ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe list site /name:$website_name"
-        if (!$hasSite){
-            echo "未检测到此站点，远程创建$website_ip 站点$website_name……………………"
-            ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe add site /name:$website_name /bindings:$website_address /physicalPath:$website_dir$website_name"
-        }else{
-            echo "$website_ip 站点$website_name 已存在 ，无需创建"
-        }
-        echo "远程拷贝$website_ip $website_dir$website_name-new 到网站根目录 $website_dir$website_name"
-        ExecCmd "mv $website_dir$website_name-new $website_dir$website_name"
-        echo "远程启动$website_ip 站点$website_name……………………"
-        ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start site $website_name"
-        ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start apppool $website_name"
-        echo "#############################################"
-        echo "站点地址：$script:uri"
-        echo "#############################################"
+        else {    
+                  echo "----------------------------发布目录拷贝到$website_name-new全部完成-------------------------------------------------"
+                  $hasBak_tag = ExecCmd "Test-Path $website_tag_dir$website_name-$version"
+                  if($hasBak_tag -eq 1){
+                         ExecCmd "Remove-Item $website_tag_dir$website_name-$version -Recurse -Force"
+                  }   
+                  echo "拷贝最新发布目录到tag目录下"
+                  ExecCmd "Copy-Item -Path  $website_dir$website_name-new -Destination $website_tag_dir$website_name-$version -Recurse -Force"
+                  echo "---------------------------发布目录拷贝到$website_tag_dir目录下全部完成---------------------------------------------"
+                  echo "远程停止$website_ip 站点$website_name……………………"
+                  ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop site $website_name"
+                  ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop apppool $website_name"
+                  echo "删除$website_ip 的上次备份，并远程备份原代码到$website_ip $website_dir$website_name-bak……………………"
+                  $hasBak = ExecCmd "Test-Path $website_dir$website_name-bak"
+                  if($hasBak -eq 1){
+                            ExecCmd "Remove-Item $website_dir$website_name-bak -Recurse -Force"
+                  } 
+                  $hasDir = ExecCmd "Test-Path $website_dir$website_name"
+                  if($hasDir -eq 1){
+                         ExecCmd "mv $website_dir$website_name $website_dir$website_name-bak"
+                  }
+                  echo "检测$website_ip 是否存在站点$website_name……………………"
+                  $hasSite = ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe list site /name:$website_name"
+                  if (!$hasSite){
+                             echo "未检测到此站点，远程创建$website_ip 站点$website_name……………………"
+                             ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe add site /name:$website_name /bindings:$website_address /physicalPath:$website_dir$website_name"
+                  }
+                  else {
+                             echo "$website_ip 站点$website_name 已存在 ，无需创建"
+                  } 
+                  echo "远程拷贝$website_ip $website_dir$website_name-new 到网站根目录 $website_dir$website_name"
+                  ExecCmd "mv $website_dir$website_name-new $website_dir$website_name"
+                  echo "远程启动$website_ip 站点$website_name……………………"
+                  ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start site $website_name"
+                  ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start apppool $website_name"
+                  echo "#############################################"
+                  echo "站点地址：$script:uri"
+                  echo "#############################################"
+         }
 }
-
 #检测网站发布是否成功，不成功执行回滚操作
 function checkout_website() {
     if (!$version) {
-    delivery $content_failure
-    exit
-}
-else {
-    echo "开始编译................"
-    PublishWebsite  $websites
-    if($? -ne 1){
-        delivery $build_failure
-        exit 1
-    }
-    echo "开始部署……………………"    
-    remote_copy_and_restart_website
-    sleep -s 20
-    $status_code = Invoke-WebRequest -Uri $script:uri
-    if ($status_code.StatusCode -eq 200){
-        delivery $content
-    }
+          echo  "60004采集服务-聚合，获取分支失败"
+          exit 1
+    }    
     else {
-        echo "恢复bak文件到原有文件夹"
-        ExecCmd "Copy-Item -Path $website_dir$website_name-bak\* -Destination $website_dir$website_name"
-        echo "正在删除错误的tag版本"
-        ExecCmd "Remove-Item $website_tag_dir$website_name-$version -Recurse -Force"
-        echo "远程重启并恢复$website_ip 站点$website_name……………………"
-        ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop site $website_name"
-        ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start site $website_name"
-        ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop apppool $website_name"
-        ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start apppool $website_name"
-        echo "#############################################”
-        echo "恢复站点地址：$script:uri"
-        echo "#############################################"
-        delivery $content_recovery       
-     }
-   }
-}
+          echo "开始编译................"
+          PublishWebsite  $websites
+          if($? -ne 1) {
+          #delivery $build_failure
+          exit 1
+          }      
+          else {
+              echo "开始部署……………………"    
+              remote_copy_and_restart_website
+              sleep -s 20
+              if ($? -ne 1) {
+                    echo "拷贝失败,退出整个程序"
+                    exit 1
+              }
+              else {
+                    $status_code = Invoke-WebRequest -Uri $script:uri
+                    if ($status_code.StatusCode -eq 200) {
+                           echo $content
+                    }
+                    else {
+                           echo "恢复bak文件到原有文件夹"
+                           ExecCmd "Copy-Item -Path $website_dir$website_name-bak\* -Destination $website_dir$website_name"
+                           echo "正在删除错误的tag版本"
+                           ExecCmd "Remove-Item $website_tag_dir$website_name-$version -Recurse -Force"
+                           echo "远程重启并恢复$website_ip 站点$website_name……………………"
+                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop site $website_name"
+                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start site $website_name"
+                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop apppool $website_name"
+                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start apppool $website_name"
+                           echo "#############################################”
+                           echo "恢复站点地址：$script:uri"
+                           echo "#############################################"
+                           echo $content_recovery
+                    }  
+              }    
+          } 
+      }     
+} 
 checkout_website
-
-
-   
-
-
