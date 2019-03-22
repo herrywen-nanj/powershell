@@ -169,14 +169,14 @@ function checkout_website() {
                     }
                     else {
                            echo "恢复bak文件到原有文件夹"
-                           ExecCmd "Copy-Item -Path $website_bak_dir$website_name-bak-$date\* -Destination $website_dir$website_name"
+                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop site $website_name"
+			   ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop apppool $website_name"
+			   ExecCmd "Copy-Item -Path $website_bak_dir$website_name-bak-$date\* -Destination $website_dir$website_name"
                            #ExecCmd "Copy-Item -Path $website_dir$website_name-bak\* -Destination $website_dir$website_name"
                            echo "正在删除错误的tag版本"
                            ExecCmd "Remove-Item $website_tag_dir$website_name-$version-$date  -Recurse -Force"
-                           echo "远程重启并恢复$website_ip 站点$website_name……………………"
-                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop site $website_name"
-                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start site $website_name"
-                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe stop apppool $website_name"
+                           echo "远程重启并恢复$website_ip 站点$website_name……………………"                          
+                           ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start site $website_name"                           
                            ExecCmd "C:\Windows\System32\inetsrv\appcmd.exe start apppool $website_name"
                            echo "#############################################”
                            echo "恢复站点地址：$script:uri"
