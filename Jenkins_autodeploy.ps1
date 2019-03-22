@@ -17,7 +17,7 @@ $script:date = (Get-Date).ToString("yyyyMMddHHmmss")
 #定义编译失败内容
 $build_failure = "$JOB_NAME" + "项目编译出现问题，请检查环境配置!" + "目标机器" + "$website_ip" + "未执行后续操作"
 #定义成功消息内容
-$content = "$JOB_NAME" + "项目发布成功" + ",发布在服务器" + "$website_ip" + ",发布在服务器" + "$website_ip"
+$content = "$JOB_NAME" + "项目发布成功" + ",发布在服务器" + "$website_ip" 
 #定义失败消息内容
 $content_failure = "$JOB_NAME" + "发布失败，post版本号或者填写的目标ip不能为空!" + ",发布在服务器" + "$website_ip"
 #定义拷贝失败消息
