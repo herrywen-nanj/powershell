@@ -1,6 +1,5 @@
 https://blog.csdn.net/qwlovedzm/article/details/79576112
-cd /opt/gitlab/embedded/service/gitlab-rails/config  
-vim gitlab.yml 
+cd /opt/gitlab/embedded/service/gitlab-rails/config 这个文件等同于 /var/opt/gitlab/gitlab-rails/etc/gitlab.yml 
 gitlab-ctl restart    
 
 
